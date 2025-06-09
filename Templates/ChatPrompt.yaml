@@ -1,0 +1,25 @@
+name: ChatPrompt
+description: A simple chat prompt template for demonstrating YAML prompts with Semantic Kernel
+template_format: semantic-kernel
+template: |
+  You are a helpful AI assistant named {{$assistant_name}}. 
+  You are knowledgeable about {{$topic}} and can provide detailed explanations.
+  
+  User question: {{$user_question}}
+  
+  Please provide a helpful and informative response.
+input_variables:
+  - name: assistant_name
+    description: The name of the AI assistant
+    default: "Alex"
+  - name: topic
+    description: The topic the assistant specializes in
+    default: "general knowledge"
+  - name: user_question
+    description: The user's question
+    is_required: true
+execution_settings:
+  default:
+    max_tokens: 1000
+    temperature: 0.7
+    top_p: 1.0
