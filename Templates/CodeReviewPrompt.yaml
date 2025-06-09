@@ -12,9 +12,12 @@ template: |
   ```
   
   Focus areas for review:
-  {{#each focus_areas}}
-  - {{this}}
-  {{/each}}
+  - Security vulnerabilities and concerns
+  - Performance optimizations
+  - Code readability and maintainability
+  - Best practices adherence
+  - Naming conventions
+  - Code structure and organization
   
   Please provide:
   1. Overall assessment (Good/Needs Improvement/Major Issues)
@@ -33,9 +36,6 @@ input_variables:
   - name: code_to_review
     description: The code that needs to be reviewed
     is_required: true
-  - name: focus_areas
-    description: Specific areas to focus the review on
-    default: ["Security", "Performance", "Readability", "Best Practices"]
   - name: tone
     description: The tone of the review
     default: "professional and encouraging"

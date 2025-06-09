@@ -1,7 +1,8 @@
+using System;
+using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 namespace SemanticKernelYamlPromptTemplate;
 
@@ -56,12 +57,23 @@ class Program
 
             Console.WriteLine($"📄 Loading YAML prompt template from: {yamlPromptPath}");
             
-            // Create kernel function from YAML file
-            var chatFunction = kernel.CreateFunctionFromPromptYaml(
+            // Create chat kernel function from YAML file
+            var chatFunction = kernel.CreateFunctionFromPrompt(
                 File.ReadAllText(yamlPromptPath));
 
+            // Create code review function from YAML file
+            var codeReviewPromptPath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", "CodeReviewPrompt.yaml");
+            if (!File.Exists(codeReviewPromptPath))
+            {
+                Console.WriteLine($"❌ Code review YAML prompt template not found at: {codeReviewPromptPath}");
+                return;
+            }
+            Console.WriteLine($"📄 Loading code review YAML prompt template from: {codeReviewPromptPath}");
+            var codeReviewFunction = kernel.CreateFunctionFromPrompt(
+                File.ReadAllText(codeReviewPromptPath));
+
             // Demo different scenarios
-            await RunDemoScenarios(kernel, chatFunction);
+            await RunDemoScenarios(kernel, chatFunction, codeReviewFunction);
 
             Console.WriteLine("\n✅ Demo completed successfully!");
         }
@@ -78,7 +90,7 @@ class Program
         Console.ReadKey();
     }
 
-    static async Task RunDemoScenarios(Kernel kernel, KernelFunction chatFunction)
+    static async Task RunDemoScenarios(Kernel kernel, KernelFunction chatFunction, KernelFunction codeReviewFunction)
     {
         Console.WriteLine("\n🎯 Running Demo Scenarios");
         Console.WriteLine("========================\n");
@@ -120,8 +132,30 @@ class Program
 
         Console.WriteLine($"🤖 Response: {result3}\n");
 
-        // Scenario 4: Interactive mode
-        Console.WriteLine("📝 Scenario 4: Interactive Mode");
+        // Scenario 4: Code Review with Poor Style
+        Console.WriteLine("📝 Scenario 4: Code Review Assistant");
+        Console.WriteLine("------------------------------------");
+        
+        var badCodeExample = @"
+            public class calc{
+            public int x,y;
+            public calc(int X,int Y){x=X;y=Y;}
+            public int add(){return x+y;}
+            public int sub(){return x-y;}
+            public void print(){Console.WriteLine(""Result: ""+add());}}";
+
+        Console.WriteLine("🔍 Code being reviewed:");
+        Console.WriteLine(badCodeExample);
+        
+        var codeReviewResult = await kernel.InvokeAsync(codeReviewFunction, new KernelArguments
+        {
+            ["code_to_review"] = badCodeExample
+        });
+
+        Console.WriteLine($"\n🤖 Code Review: {codeReviewResult}\n");
+
+        // Scenario 5: Interactive mode
+        Console.WriteLine("📝 Scenario 5: Interactive Mode");
         Console.WriteLine("-------------------------------");
         Console.WriteLine("Enter your question (or 'quit' to exit):");
         
